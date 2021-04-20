@@ -1,3 +1,9 @@
-console.log('Hello from content script!');
+import { ContentScriptMessages, PopupMessages } from '~/message';
 
-export const a = 1;
+chrome.runtime.onMessage.addListener(
+  (request: ContentScriptMessages, sender, sendResponse: (response: PopupMessages) => void) => {
+    console.log(request);
+
+    sendResponse({ action: 'loaded-data', payload: 1111 });
+  }
+);
