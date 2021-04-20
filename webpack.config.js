@@ -22,6 +22,7 @@ module.exports = {
     alias: {
       react: 'preact/compat',
       'react-dom': 'preact/compat',
+      '~': path.resolve('./src'),
     },
   },
   plugins: [new CopyWebpackPlugin({ patterns: [{ from: 'assets', to: '.' }] })],
