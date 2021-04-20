@@ -19,6 +19,10 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.ts', '.tsx', '.json', '.mjs', '.wasm'],
+    alias: {
+      react: 'preact/compat',
+      'react-dom': 'preact/compat',
+    },
   },
   plugins: [new CopyWebpackPlugin({ patterns: [{ from: 'assets', to: '.' }] })],
 };
