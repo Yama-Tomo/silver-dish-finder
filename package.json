@@ -8,7 +8,7 @@
     "build:webpack": "webpack --mode production",
     "build:typecheck": "yarn typecheck",
     "dev": "FORCE_COLOR=true run-p -l dev:*",
-    "dev:webpack": "yarn build --watch",
+    "dev:webpack": "yarn build:webpack --watch",
     "dev:typecheck": "yarn typecheck --watch --pretty",
     "lint": "eslint './**/*.{js,ts,tsx}' --format codeframe --color",
     "format-code": "prettier './**/*.{js,ts,tsx}' -w",
