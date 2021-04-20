@@ -13,25 +13,20 @@ type UiProps = {
   onMaterialCheckChange: ListProps['onMaterialCheckChange'];
 };
 
-const UiComponent = (props: UiProps) => {
-  return (
-    <Fragment>
-      <GlobalStyle />
-      <div className={props.className}>
-        <h1>Silver Dish Finder</h1>
-        <button onClick={props.onLoadBtnClick}>データを読み込む</button>
-        {props.sushiData && (
-          <List
-            className="list"
-            sushiData={props.sushiData}
-            choiceMaterials={props.choiceMaterials}
-            onMaterialCheckChange={props.onMaterialCheckChange}
-          />
-        )}
-      </div>
-    </Fragment>
-  );
-};
+const UiComponent = (props: UiProps) => (
+  <div className={props.className}>
+    <h1>Silver Dish Finder</h1>
+    <button onClick={props.onLoadBtnClick}>データを読み込む</button>
+    {props.sushiData && (
+      <List
+        className="list"
+        sushiData={props.sushiData}
+        choiceMaterials={props.choiceMaterials}
+        onMaterialCheckChange={props.onMaterialCheckChange}
+      />
+    )}
+  </div>
+);
 
 /* ------------------- Style ------------------- */
 const GlobalStyle = createGlobalStyle`
@@ -45,7 +40,12 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-const StyledUi = styled(UiComponent)`
+const StyledUi = styled((props: UiProps) => (
+  <Fragment>
+    <GlobalStyle />
+    <UiComponent {...props} />
+  </Fragment>
+))`
   button {
     cursor: pointer;
   }
