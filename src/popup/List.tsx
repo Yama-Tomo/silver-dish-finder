@@ -6,13 +6,16 @@ import styled from 'styled-components';
 type UiProps = {
   className?: string;
   sushiData: PopupMessages['payload'];
+  choiceMaterials: string[];
+  onMaterialCheckChange: (name: string, checked: boolean) => void;
 };
 
 const UiComponent = (props: UiProps) => {
   return (
     <div className={props.className}>
-      {props.sushiData.setMenus.length === 0 && <div>データがありません</div>}
-      {props.sushiData.setMenus.length > 0 && (
+      {Object.keys(props.sushiData.materials).length === 0 ? (
+        <div>データがありません</div>
+      ) : (
         <table>
           <thead>
             <tr>
@@ -27,7 +30,18 @@ const UiComponent = (props: UiProps) => {
               .sort((a, b) => (a[1] < b[1] ? 1 : -1))
               .map(([material]) => (
                 <tr>
-                  <td className="material">{material}</td>
+                  <td className="material">
+                    <label>
+                      <input
+                        type="checkbox"
+                        onChange={(e) => {
+                          props.onMaterialCheckChange(material, e.currentTarget.checked);
+                        }}
+                        checked={props.choiceMaterials.includes(material)}
+                      />
+                      {material}
+                    </label>
+                  </td>
                   {props.sushiData.setMenus.map((setMenu) => {
                     const isInclude = setMenu.materials.includes(material);
                     return (
@@ -54,6 +68,10 @@ const StyledUi = styled(UiComponent)`
   }
 
   th {
+    &:first-child {
+      height: 18px;
+    }
+
     padding-left: 10px;
     padding-right: 10px;
     white-space: nowrap;
@@ -67,6 +85,11 @@ const StyledUi = styled(UiComponent)`
   td {
     &.material {
       min-width: 125px;
+
+      label {
+        cursor: pointer;
+        display: inline-flex;
+      }
     }
 
     &.unavailable {
@@ -82,3 +105,4 @@ const StyledUi = styled(UiComponent)`
 
 /*---------------------------------------------- */
 export { StyledUi as List };
+export type { UiProps as ListProps };

@@ -1,14 +1,16 @@
 import { h, render, Fragment } from 'preact';
-import { StateUpdater, useState } from 'preact/hooks';
+import { useState } from 'preact/hooks';
 import styled, { createGlobalStyle } from 'styled-components';
 import { ContentScriptMessages, PopupMessages } from '~/message';
-import { List } from '~/popup/List';
+import { List, ListProps } from '~/popup/List';
 
 /* -------------------- DOM -------------------- */
 type UiProps = {
   className?: string;
   onLoadBtnClick: () => void;
-  sushiData: PopupMessages['payload'] | undefined;
+  sushiData: ListProps['sushiData'] | undefined;
+  choiceMaterials: ListProps['choiceMaterials'];
+  onMaterialCheckChange: ListProps['onMaterialCheckChange'];
 };
 
 const UiComponent = (props: UiProps) => {
@@ -18,7 +20,14 @@ const UiComponent = (props: UiProps) => {
       <div className={props.className}>
         <h1>Silver Dish Finder</h1>
         <button onClick={props.onLoadBtnClick}>データを読み込む</button>
-        {props.sushiData && <List className="list" sushiData={props.sushiData} />}
+        {props.sushiData && (
+          <List
+            className="list"
+            sushiData={props.sushiData}
+            choiceMaterials={props.choiceMaterials}
+            onMaterialCheckChange={props.onMaterialCheckChange}
+          />
+        )}
       </div>
     </Fragment>
   );
@@ -42,29 +51,52 @@ const StyledUi = styled(UiComponent)`
 `;
 
 /* ----------------- Container ----------------- */
+type State = { sushiData: PopupMessages | undefined; choiceMaterials: UiProps['choiceMaterials'] };
 const Container = () => {
-  const [state, setState] = useState<PopupMessages | undefined>(undefined);
+  const [{ sushiData, choiceMaterials }, setState] = useState<State>({
+    sushiData: undefined,
+    choiceMaterials: [],
+  });
+
+  const updateSushiData = (sushiData: State['sushiData']) =>
+    setState((v) => ({ choiceMaterials: [], sushiData }));
 
   const innerProps: UiProps = {
     onLoadBtnClick: () => {
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => loadData(tabs, setState));
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) =>
+        loadData(tabs, updateSushiData)
+      );
     },
-    sushiData: state?.payload,
+    sushiData: sushiData?.payload
+      ? {
+          ...sushiData.payload,
+          setMenus: !choiceMaterials.length
+            ? sushiData.payload.setMenus
+            : sushiData.payload.setMenus.filter(({ materials }) =>
+                choiceMaterials.every((d) => materials.includes(d))
+              ),
+        }
+      : undefined,
+    choiceMaterials,
+    onMaterialCheckChange: (targetMaterial, checked) => {
+      const updateChoiceMaterials = checked
+        ? choiceMaterials.concat(targetMaterial)
+        : choiceMaterials.filter((material) => material !== targetMaterial);
+
+      setState((v) => ({ ...v, choiceMaterials: updateChoiceMaterials }));
+    },
   };
 
   return <StyledUi {...innerProps} />;
 };
 
-const loadData = (
-  tabs: chrome.tabs.Tab[],
-  stateUpdater: StateUpdater<PopupMessages | undefined>
-) => {
+const loadData = (tabs: chrome.tabs.Tab[], updateSushiData: (payload: PopupMessages) => void) => {
   if (!tabs[0] || !tabs[0].id) {
     return;
   }
 
   const message: ContentScriptMessages = { action: 'load-data' };
-  chrome.tabs.sendMessage(tabs[0].id, message, stateUpdater);
+  chrome.tabs.sendMessage(tabs[0].id, message, updateSushiData);
 };
 
 render(<Container />, document.body);
