@@ -39,12 +39,17 @@ const GlobalStyle = createGlobalStyle`
     box-sizing: border-box;
     margin: 0.5rem;
     min-width: 500px;
-    background-color: rgb(239, 241, 236);
+    background-color: #fafafa;
     font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    color: #45515b;
   }
 `;
 
 const StyledUi = styled(UiComponent)`
+  button {
+    cursor: pointer;
+  }
+
   .list {
     margin-top: 0.5rem;
   }
