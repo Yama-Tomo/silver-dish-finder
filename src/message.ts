@@ -2,6 +2,7 @@ type MaterialName = string;
 type MaterialCount = number;
 type SushiData = {
   setMenus: { setName: string; materials: string[] }[];
+  singleMenus: { materialName: MaterialName; price: string }[];
   materials: Record<MaterialName, MaterialCount>;
 };
 

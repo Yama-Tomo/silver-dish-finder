@@ -2,7 +2,7 @@ import { ContentScriptMessages, PopupMessages } from '~/message';
 
 chrome.runtime.onMessage.addListener(
   (request: ContentScriptMessages, sender, sendResponse: (response: PopupMessages) => void) => {
-    const message: PopupMessages['payload'] = { setMenus: [], materials: {} };
+    const message: PopupMessages['payload'] = { setMenus: [], singleMenus: [], materials: {} };
 
     document
       .querySelectorAll<HTMLDivElement>('#CO000 + section .p-menu__info:first-child')
@@ -31,6 +31,26 @@ chrome.runtime.onMessage.addListener(
         materials.forEach((material) => {
           message.materials[material] = (message.materials[material] ?? 0) + 1;
         });
+      });
+
+    document
+      .querySelector('#CT000')
+      ?.parentNode?.querySelectorAll('.p-menu__info')
+      .forEach((element) => {
+        const materialName = element
+          .querySelector<HTMLAnchorElement>('.p-menu__name')
+          ?.innerText.split(/[ 　]/)
+          .pop()
+          ?.replace(/\(.*\)/, '');
+
+        const price = element
+          .querySelector<HTMLParagraphElement>('.p-menu__price')
+          ?.innerText.split(' ')
+          .shift();
+
+        if (materialName && price) {
+          message.singleMenus.push({ materialName, price });
+        }
       });
 
     sendResponse({ action: 'loaded-data', payload: message });

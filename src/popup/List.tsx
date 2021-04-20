@@ -39,7 +39,12 @@ const UiComponent = (props: UiProps) => {
                         }}
                         checked={props.choiceMaterials.includes(material)}
                       />
-                      {material}
+                      <span>
+                        {material}
+                        <span className="single-menu-price">
+                          {getPrice(props.sushiData.singleMenus, material)}
+                        </span>
+                      </span>
                     </label>
                   </td>
                   {props.sushiData.setMenus.map((setMenu) => {
@@ -57,6 +62,11 @@ const UiComponent = (props: UiProps) => {
       )}
     </div>
   );
+};
+
+const getPrice = (singleMenus: PopupMessages['payload']['singleMenus'], materialName: string) => {
+  const singleMenu = singleMenus.find((singleMenu) => singleMenu.materialName === materialName);
+  return singleMenu ? `（単品: ${singleMenu.price}）` : '';
 };
 
 /* ------------------- Style ------------------- */
@@ -89,6 +99,10 @@ const StyledUi = styled(UiComponent)`
       label {
         cursor: pointer;
         display: inline-flex;
+
+        .single-menu-price {
+          color: rgb(152 152 152);
+        }
       }
     }
 
